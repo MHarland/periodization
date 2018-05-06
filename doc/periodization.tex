@@ -1,0 +1,40 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[style=phys]{biblatex}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage[left=2cm, right=2cm, top=2cm, bottom=2.5cm]{geometry}
+%\addbibresource{hypercubicbib.bib}
+\title{Periodization}
+\date{\today}
+\author{M.~Harland}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+\newcommand{\reffig}[1]{Fig.~\ref{#1}}
+\newcommand{\refeq}[1]{Eq.~\ref{#1}}
+%\newcommand{\dag}{\dagger}
+
+\begin{document}
+\maketitle
+
+\section{Definitions}
+The lattice self-energy is defined as
+\begin{align}
+  \label{eq:dispersion}
+  \Sigma(k) = \sum_r e^{ikr} \Sigma_r.
+\end{align}
+$r$ runs over all translations in the basis of the lattice vectors and $k$ is any vector of the Brillouin zone in the basis of the reciprocal lattice vectors.
+
+%\clearpage
+%\nocite{*}
+%\printbibliography
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
