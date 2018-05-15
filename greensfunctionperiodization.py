@@ -19,6 +19,7 @@ class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
             )
             for k in self.k]
         self.gr = {}
+        self.ginvr = {}
 
     def periodize(self):
         gkpercore = scatter_list(self.gk)
@@ -35,13 +36,13 @@ class LatticeSelfenergy(LatticeSelfenergyGen):
         self.k = lattice_greensfunction.k
         self.wk = lattice_greensfunction.wk
         self.hk = lattice_greensfunction.hk
-        self._calculate_sigma_k(mu)
+        self._calculate_sigma_k(lattice_greensfunction, mu)
 
-    def _calculate_sigma_k(self, mu):
+    def _calculate_sigma_k(self, glat, mu):
         sigkpercore = scatter_list(self.sigma_k)
-        gkpercore = scatter_list(self.gk)
-        hkpercore = scatter_list(self.hk)
-        for hk, sigk, gk in itt.izip(hpercore, sigkpercore, gkpercore):
+        gkpercore = scatter_list(glat.gk)
+        hkpercore = scatter_list(glat.hk)
+        for hk, sigk, gk in itt.izip(hkpercore, sigkpercore, gkpercore):
                 for s, b in sigk:
-                    sigk[s] << iOmega_n + mu - hk - inverse(gk[s])
+                    sigk[s] << iOmega_n + mu - hk[s] - inverse(gk[s])
         self.sigma_k = allgather_list(sigkpercore)
