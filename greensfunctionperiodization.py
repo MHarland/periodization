@@ -14,7 +14,7 @@ class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
         self.gk = [
             BlockGf(
                 name_block_generator = [
-                    (bn, GfImFreq(beta = g_r[0].beta, indices = bi)) for bn, bi in zip(blocknames, blockindices)
+                    (bn, GfImFreq(mesh = g_r[0].mesh, indices = bi)) for bn, bi in zip(blocknames, blockindices)
                 ]
             )
             for k in self.k]
@@ -27,7 +27,7 @@ class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
         for gk, k in itt.izip(gkpercore, kpercore):
             for gr, r, wr in itt.izip(self.gr_in, self.r, self.wr):
                 for s, b in gk:
-                    gk[s] += wr * np.exp(complex(0, 2*np.pi * k.dot(r))) * gr[s]
+                    gk[s] << gk[s] + wr * np.exp(complex(0, 2*np.pi * k.dot(r))) * gr[s]
         self.gk = allgather_list(gkpercore)
 
 class LatticeSelfenergy(LatticeSelfenergyGen):

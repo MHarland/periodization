@@ -25,7 +25,7 @@ class LatticeSelfenergy(LatticeSelfenergyGen):
         for sigk, k in itt.izip(sigkpercore, kpercore):
             for sigr, r, wr in itt.izip(self.sigr, self.r, self.wr):
                 for s, b in sigk:
-                    sigk[s] += wr * np.exp(complex(0, 2*np.pi * k.dot(r))) * sigr[s]
+                    sigk[s] << sigk[s] + wr * np.exp(complex(0, 2*np.pi * k.dot(r))) * sigr[s]
         self.sigma_k = allgather_list(sigkpercore)
 
 
