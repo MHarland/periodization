@@ -43,10 +43,11 @@ class LatticeGreensfunction:
         gtmp = self.gk[0].copy()
         gtmp.zero()
         gtmp2 = gtmp.copy()
-        wkpercore = scatter_list(self.wk)
-        gkpercore = scatter_list(self.gk)
-        kpercore = scatter_list(self.k)
-        for k, wk, gk in itt.izip(kpercore, wkpercore, gkpercore):
+        ikspercore = scatter_list(range(len(self.k)))
+        for i_k in ikspercore:
+            k = self.k[i_k]
+            wk = self.wk[i_k]
+            gk = self.gk[i_k]
             for s, b in gtmp:
                 b << b + gk[s] * wk * np.exp(complex(0, -2*np.pi * k.dot(r12)))
         for s, b in gtmp2:
