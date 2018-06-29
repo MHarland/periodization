@@ -13,13 +13,19 @@ class LatticeSelfenergy:
     k is in the basis of the reciprocal lattice vectors
     input parameters are lists with order defined by translations r
     """
-    def __init__(self, blocknames, blockindices, r, hopping_r, nk, hopping_k = None, verbose = False):
+    def __init__(self, blocknames, blockindices, r, hopping_r, nk, hopping_k = None, k_mesh = None, wk = None, verbose = False):
         self.verbose = verbose
         self.r = np.array(r)
         self.d = len(self.r[0])
         self.nk = nk
-        self.k = np.array([k for k in itt.product(*[np.linspace(-.5, .5, nk, False)]*self.d)])
-        self.wk = [1./(self.nk**self.d) for k in self.k]
+        if k_mesh is None:
+            self.k = np.array([k for k in itt.product(*[np.linspace(-.5, .5, nk, False)]*self.d)])
+        else:
+            self.k = k_mesh
+        if wk is None:
+            self.wk = [1./(self.nk**self.d) for k in self.k]
+        else:
+            self.wk = wk
         if hopping_k is None:
             self.hr = [{bn: np.array(b, dtype = complex) for bn, b in hr.items()} for hr in hopping_r]
             self.hk = [{bn: 0 for bn in hr.keys()} for k in self.k]

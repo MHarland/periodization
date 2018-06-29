@@ -13,7 +13,18 @@ class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
             gk_on_the_fly = kwargs.pop('gk_on_the_fly')
         else:
             gk_on_the_fly = False
-        LatticeSelfenergyGen.__init__(self, blocknames, blockindices, r, hopping_r, nk, *args, **kwargs)
+        if 'hk_on_the_fly' in kwargs:
+            hk_on_the_fly = kwargs.pop('hk_on_the_fly')
+        else:
+            hk_on_the_fly = False
+        if not hk_on_the_fly:
+            LatticeSelfenergyGen.__init__(self, blocknames, blockindices, r, hopping_r, nk, *args, **kwargs)
+        else:
+            r = np.array(r)
+            d = len(r[0])
+            k_mesh = np.array([k for k in itt.product(*[np.linspace(-.5, .5, nk, False)]*d)])
+            hk = HkOnTheFly(hopping_r, r, k_mesh)
+            LatticeSelfenergyGen.__init__(self, blocknames, blockindices, r, None, nk, hk, k_mesh, *args, **kwargs)
         self.wr = weights_r
         self.gr = {}
         self.ginvr = {}
@@ -48,3 +59,17 @@ class GkOnTheFly:
         for bn, b in self.g_ki:
             b << inverse((iOmega_n + self.mu) - self.hk[i_k][bn] - self.selfenergy[bn])
         return self.g_ki
+
+class HkOnTheFly:
+    def __init__(self, hopping_r, r, k_mesh):
+        self.r = r
+        self.k = k_mesh
+        self.hr = [{bn: np.array(b, dtype = complex) for bn, b in hr.items()} for hr in hopping_r]
+    
+    def __getitem__(self, i_k):
+        k = self.k[i_k]
+        hk = {bn: 0 for bn in self.hr[0].keys()}
+        for hr, r in itt.izip(self.hr, self.r):
+            for b in hr.keys():
+                hk[b] += np.exp(complex(0, 2*np.pi * k.dot(r))) * hr[b]
+        return hk
