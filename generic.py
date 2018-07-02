@@ -22,6 +22,7 @@ class LatticeSelfenergy:
             self.k = np.array([k for k in itt.product(*[np.linspace(-.5, .5, nk, False)]*self.d)])
         else:
             self.k = k_mesh
+        self.ik = range(len(self.k))
         if wk is None:
             self.wk = [1./(self.nk**self.d) for k in self.k]
         else:
