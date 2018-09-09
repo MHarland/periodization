@@ -51,6 +51,7 @@ class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
 class GkOnTheFly:
     def __init__(self, blocknames, blockindices, selfenergy, mu, hk):
         self.hk = hk
+        self.nk = hk.nk
         self.selfenergy = selfenergy
         self.mu = mu
         self.g_ki = BlockGf(name_block_generator = [(bn, GfImFreq(mesh = selfenergy.mesh, indices = bi)) for bn, bi in zip(blocknames, blockindices)])
@@ -64,6 +65,7 @@ class HkOnTheFly:
     def __init__(self, hopping_r, r, k_mesh):
         self.r = r
         self.k = k_mesh
+        self.nk = len(self.k)
         self.hr = [{bn: np.array(b, dtype = complex) for bn, b in hr.items()} for hr in hopping_r]
     
     def __getitem__(self, i_k):

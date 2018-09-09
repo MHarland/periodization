@@ -90,11 +90,19 @@ class LocalLatticeGreensfunction(BlockGf):
         gtmp = glat.gk[0].copy()
         gtmp.zero()
         BlockGf.__init__(self, name_block_generator = [(s, b) for s, b in gtmp], make_copies = True)
-        wkpercore = scatter_list(glat.wk)
-        gkpercore = scatter_list(glat.gk)
-        for wk, gk in itt.izip(wkpercore, gkpercore):#itt.izip(*[mpi.slice_array(a) for a in [wkpercore, gkpercore]]):
-            for s, b in gtmp:
-                b << b + gk[s] * wk
+        if not isinstance(glat.gk, list):
+            ik_per_core = scatter_list(range(glat.gk.nk))
+            for k_ in ik_per_core:
+                wk = glat.wk[k_]
+                gk = glat.gk[k_]
+                for s, b in gtmp:
+                    b << b + gk[s] * wk
+        else:
+            wkpercore = scatter_list(glat.wk)
+            gkpercore = scatter_list(glat.gk)
+            for wk, gk in itt.izip(wkpercore, gkpercore):#itt.izip(*[mpi.slice_array(a) for a in [wkpercore, gkpercore]]):
+                for s, b in gtmp:
+                    b << b + gk[s] * wk
         for s, b in self:
             b << mpi.all_reduce(mpi.world, gtmp[s], lambda x, y: x + y)
 
