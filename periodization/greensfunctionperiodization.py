@@ -1,5 +1,6 @@
-import itertools as itt, numpy as np
-from pytriqs.gf.local import BlockGf, GfImFreq, iOmega_n, inverse
+import itertools as itt
+import numpy as np
+from pytriqs.gf import BlockGf, GfImFreq, iOmega_n, inverse
 from pytriqs.utility import mpi
 
 from periodization.mpiLists import scatter_list, allgather_list
@@ -8,14 +9,15 @@ from periodization.generic import LatticeSelfenergy as LatticeSelfenergyGen, Lat
 
 class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
     def __init__(self, blocknames, blockindices, r, hopping_r, nk, g_r, weights_r, *args, **kwargs):
-        LatticeSelfenergyGen.__init__(self, blocknames, blockindices, r, hopping_r, nk, *args, **kwargs)
+        LatticeSelfenergyGen.__init__(
+            self, blocknames, blockindices, r, hopping_r, nk, *args, **kwargs)
         self.wr = weights_r
         self.gr_in = g_r
         self.gk = [
             BlockGf(
-                name_block_generator = [
-                    (bn, GfImFreq(mesh = g_r[0].mesh, indices = bi)) for bn, bi in zip(blocknames, blockindices)
-                ]
+                name_block_generator=[
+                    (bn, GfImFreq(mesh=g_r[0].mesh, indices=bi)) for bn, bi in zip(blocknames, blockindices)
+                ], make_copies=False
             )
             for k in self.k]
         self.gr = {}
@@ -27,8 +29,10 @@ class LatticeGreensfunction(LatticeGreensfunctionGen, LatticeSelfenergyGen):
         for gk, k in itt.izip(gkpercore, kpercore):
             for gr, r, wr in itt.izip(self.gr_in, self.r, self.wr):
                 for s, b in gk:
-                    gk[s] << gk[s] + wr * np.exp(complex(0, 2*np.pi * k.dot(r))) * gr[s]
+                    gk[s] << gk[s] + wr * \
+                        np.exp(complex(0, 2*np.pi * k.dot(r))) * gr[s]
         self.gk = allgather_list(gkpercore)
+
 
 class LatticeSelfenergy(LatticeSelfenergyGen):
     def __init__(self, lattice_greensfunction, mu):
@@ -43,6 +47,6 @@ class LatticeSelfenergy(LatticeSelfenergyGen):
         gkpercore = scatter_list(glat.gk)
         hkpercore = scatter_list(glat.hk)
         for hk, sigk, gk in itt.izip(hkpercore, sigkpercore, gkpercore):
-                for s, b in sigk:
-                    sigk[s] << iOmega_n + mu - hk[s] - inverse(gk[s])
+            for s, b in sigk:
+                sigk[s] << iOmega_n + mu - hk[s] - inverse(gk[s])
         self.sigma_k = allgather_list(sigkpercore)

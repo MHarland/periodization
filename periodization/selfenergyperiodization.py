@@ -1,5 +1,6 @@
-import itertools as itt, numpy as np
-from pytriqs.gf.local import BlockGf, GfImFreq, iOmega_n, inverse
+import itertools as itt
+import numpy as np
+from pytriqs.gf import BlockGf, GfImFreq, iOmega_n, inverse
 from pytriqs.utility import mpi
 
 from periodization.mpiLists import scatter_list, allgather_list
@@ -8,14 +9,15 @@ from periodization.generic import LatticeSelfenergy as LatticeSelfenergyGen, Lat
 
 class LatticeSelfenergy(LatticeSelfenergyGen):
     def __init__(self, blocknames, blockindices, r, hopping_r, nk, sigma_r, weights_r, *args, **kwargs):
-        LatticeSelfenergyGen.__init__(self, blocknames, blockindices, r, hopping_r, nk, *args, **kwargs)
+        LatticeSelfenergyGen.__init__(
+            self, blocknames, blockindices, r, hopping_r, nk, *args, **kwargs)
         self.wr = weights_r
         self.sigr = sigma_r
         self.sigma_k = [
             BlockGf(
-                name_block_generator = [
-                    (bn, GfImFreq(mesh = sigma_r[0].mesh, indices = bi)) for bn, bi in zip(blocknames, blockindices)
-                    ]
+                name_block_generator=[
+                    (bn, GfImFreq(mesh=sigma_r[0].mesh, indices=bi)) for bn, bi in zip(blocknames, blockindices)
+                ], make_copies=False
             )
             for k in self.k]
 
@@ -25,7 +27,8 @@ class LatticeSelfenergy(LatticeSelfenergyGen):
         for sigk, k in itt.izip(sigkpercore, kpercore):
             for sigr, r, wr in itt.izip(self.sigr, self.r, self.wr):
                 for s, b in sigk:
-                    sigk[s] << sigk[s] + wr * np.exp(complex(0, 2*np.pi * k.dot(r))) * sigr[s]
+                    sigk[s] << sigk[s] + wr * \
+                        np.exp(complex(0, 2*np.pi * k.dot(r))) * sigr[s]
         self.sigma_k = allgather_list(sigkpercore)
 
 

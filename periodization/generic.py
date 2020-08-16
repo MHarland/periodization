@@ -1,5 +1,5 @@
 import itertools as itt, numpy as np
-from pytriqs.gf.local import BlockGf, GfReFreq, GfImFreq, inverse
+from pytriqs.gf import BlockGf, GfReFreq, GfImFreq, inverse
 from pytriqs.utility import mpi
 
 from periodization.mpiLists import scatter_list, allgather_list
